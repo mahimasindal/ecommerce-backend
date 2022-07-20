@@ -4,7 +4,9 @@ const catchAsyncErros = require("../middleware/catchAsyncErrors");
 const sendToken = require("../utils/jwtToken");
 const sendEmail = require("../utils/sendEmail")
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
-const crypto = require("crypto")
+const crypto = require("crypto");
+const { json } = require("body-parser");
+const { rmSync } = require("fs");
 
 
 //Register a User
@@ -184,4 +186,76 @@ exports.updateProfile = catchAsyncErrors(async(req,res,next)=>{
     });
     
     sendToken(user,200,res);
+})
+
+//get all users (admin)
+exports.getAllUser = catchAsyncErrors(async(req,res,next)=>{
+    const users= await User.find();
+
+
+    res.status(200).json({
+        users,
+        success:true
+    });
+
+})
+
+//get single user (admin)
+exports.getSingleUser = catchAsyncErrors(async(req,res,next)=>{
+    const user= await User.findById(req.params.id);
+
+    if(!user){
+        return next(
+            new ErrorHandler(`User doesn't exist with ID ${req.params.id}`)
+            );
+    }
+
+    res.status(200).json({
+        user,
+        success:true
+    });
+
+})
+    
+
+//update profile by ADMIN
+exports.updateUser = catchAsyncErrors(async(req,res,next)=>{
+    
+    const newUserData={
+        name:req.body.name,
+        email:req.body.email,
+        role:req.body.role
+    }
+    
+    const user = await User.findByIdAndUpdate(req.params.id, newUserData,{
+        new: true,
+        runValidators:true,
+        useFindAndModify:false,
+    });
+    
+    res.status(200).json({
+        user,
+        success:true
+    })
+})
+
+
+//delete profile by ADMIN
+exports.deleteUser = catchAsyncErrors(async(req,res,next)=>{
+    
+   
+    const user = await User.findByIdAndUpdate(req.params.id);
+
+    if(!user){
+        return next(
+            new ErrorHandler(`User doesn't exist with ID ${req.params.id}`)
+            );
+    }
+
+    await user.remove();
+    
+    res.status(200).json({
+        success:true,
+        message:"user deleted successfully"
+    })
 })
