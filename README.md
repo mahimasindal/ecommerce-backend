@@ -1,5 +1,9 @@
 # ecommerce-backend
 an ecommerce site made with node js
+### clone it on your system 
+### npm install for installing the node modules
+### npm run dev for starting the server
+### some routes are authenticated so we need to pass token into the header
 
 
 ## AUTHENTICATE AND UPDATE USER ROUTES
